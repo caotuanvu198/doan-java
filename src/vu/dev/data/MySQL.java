@@ -1,10 +1,10 @@
-package binh.dev.data;
+package vu.dev.data;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import binh.dev.tools.DBConstant;
+import vu.dev.tools.DBConstant;
 
 public class MySQL {
 	public static Connection getConnection() throws ClassNotFoundException, SQLException {

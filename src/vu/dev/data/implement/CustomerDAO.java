@@ -1,6 +1,5 @@
-package binh.dev.data.implement;
+package vu.dev.data.implement;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,41 +7,29 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import binh.dev.data.DatabaseConnect;
-import binh.dev.data.model.Customer;
-import binh.dev.tools.DBConstant;
+import vu.dev.data.model.Customer;
+import vu.dev.tools.DBConstant;
 
-public class CustomerDAO {
-	private Connection conn;
-	
-	public CustomerDAO() {
-		try {
-			conn = DatabaseConnect.getConnection();			
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
+public class CustomerDAO extends ModelDAO {
+
 	public boolean save(Customer cus) {
-		String sql = "insert into " + DBConstant.TABLE_CUSTOMER + " values(null,?,?,?)";
+		String sql = "insert into " + DBConstant.TABLE_CUSTOMER + " values(?,?,?,?)";
 		try {
 			PreparedStatement preparedStmt = conn.prepareStatement(sql);
-			preparedStmt.setString(1, cus.getName());
-			preparedStmt.setInt(2, cus.getOld());
-			preparedStmt.setString(3, cus.getSex());
-			return preparedStmt.execute();
+			preparedStmt.setInt(1, cus.getId());
+			preparedStmt.setString(2, cus.getName());
+			preparedStmt.setInt(3, cus.getOld());
+			preparedStmt.setString(4, cus.getSex());
+			preparedStmt.execute();
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
 	}
-	
-	public int update(Customer cus) {
+
+	public boolean update(Customer cus) {
 		String sql = "update " + DBConstant.TABLE_CUSTOMER + " set name=?, old=?, sex=? where id = ?";
 		try {
 			PreparedStatement preparedStmt = conn.prepareStatement(sql);
@@ -50,39 +37,42 @@ public class CustomerDAO {
 			preparedStmt.setInt(2, cus.getOld());
 			preparedStmt.setString(3, cus.getSex());
 			preparedStmt.setInt(4, cus.getId());
-			return preparedStmt.executeUpdate();
+			preparedStmt.executeUpdate();
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return -1;
+		return false;
 	}
+
 	public boolean delete(int id) {
 		String sql = "delete from " + DBConstant.TABLE_CUSTOMER + " where id = ?";
 		PreparedStatement preparedStmt;
 		try {
 			preparedStmt = conn.prepareStatement(sql);
 			preparedStmt.setInt(1, id);
-			return preparedStmt.execute();
+			preparedStmt.execute();
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return false;
 	}
-	
-	public List<Customer> findAll(){
+
+	public List<Customer> findAll() {
 		List<Customer> rs = new ArrayList<>();
 		String sql = "select * from " + DBConstant.TABLE_CUSTOMER;
 		try {
 			Statement stats = conn.createStatement();
 			ResultSet resultSet = stats.executeQuery(sql);
-			
-			while(resultSet.next()) {
-				Customer cus = new Customer(resultSet.getString(DBConstant.CUSTOMER_NAME), 
-						resultSet.getInt(DBConstant.CUSTOMER_OLD), 
-						resultSet.getString(DBConstant.CUSTOMER_SEX));
+
+			while (resultSet.next()) {
+				Customer cus = new Customer(resultSet.getInt(DBConstant.CUSTOMER_ID),
+						resultSet.getString(DBConstant.CUSTOMER_NAME), resultSet.getString(DBConstant.CUSTOMER_SEX),
+						resultSet.getInt(DBConstant.CUSTOMER_OLD));
 				cus.setId(resultSet.getInt(DBConstant.CUSTOMER_ID));
 				rs.add(cus);
 			}
@@ -91,18 +81,18 @@ public class CustomerDAO {
 		}
 		return rs;
 	}
-	
-	public Customer findById(int id) {
-		String sql = "select * from " + DBConstant.TABLE_CUSTOMER + " where id = ?";
+
+	public Customer findByField(String field, String condition) {
+		String sql = "select * from `" + DBConstant.TABLE_CUSTOMER + "` where `" + field + "` = '" + condition + "'";
 		try {
-			PreparedStatement preparedStmt = conn.prepareStatement(sql);
-			ResultSet resultSet = preparedStmt.executeQuery(sql);
-			
-			while(resultSet.next()) {
-				Customer cus = new Customer(resultSet.getString(DBConstant.CUSTOMER_NAME), 
-						resultSet.getInt(DBConstant.CUSTOMER_OLD), 
-						resultSet.getString(DBConstant.CUSTOMER_SEX));
-				cus.setId(resultSet.getInt(DBConstant.CUSTOMER_ID));
+			Statement stmt = conn.createStatement();
+			ResultSet rs;
+
+			rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				Customer cus = new Customer(rs.getInt(DBConstant.CUSTOMER_ID), rs.getString(DBConstant.CUSTOMER_NAME),
+						rs.getString(DBConstant.CUSTOMER_SEX), rs.getInt(DBConstant.CUSTOMER_OLD));
 				return cus;
 			}
 		} catch (SQLException e) {
@@ -111,4 +101,5 @@ public class CustomerDAO {
 		}
 		return null;
 	}
+
 }

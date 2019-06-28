@@ -1,4 +1,4 @@
-package binh.dev.data.model;
+package vu.dev.data.model;
 
 import java.io.Serializable;
 

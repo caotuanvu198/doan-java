@@ -1,4 +1,4 @@
-package binh.dev.data;
+package vu.dev.data;
 
 import java.sql.Connection;
 import java.sql.SQLException;
